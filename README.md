@@ -2,7 +2,7 @@
 
 ## Overview
 
-**This project is currently in the planning stage**
+**These filters seem to work but have seen only very limited testing**
 
 Ansible Jinja2 filters for extracting lines from Cisco IOS-style configurations. The filters require 
 [*ciscoconfparse*](https://pypi.org/project/ciscoconfparse/) but the implemented API is somewhat different.
@@ -12,8 +12,8 @@ implemented in *ansible-filter-iosconf*.
 * ``iosconf_lines``
 * ``iosconf_lines_with_child``
 * ``iosconf_lines_without_child``
-* ``iosconf_lines_with_childdren``
-* ``iosconf_lines_without_childdren``
+* ``iosconf_lines_with_children``
+* ``iosconf_lines_without_children`` (**This currently does not work!**)
 * ``iosconf_lines_with_parents``
 
 The filters are meant to be used in conjunction with the ``ansible_net_config`` fact and the ``set_fact`` module. Check
@@ -76,7 +76,7 @@ The example below filters for any Tacacs+ servers in the ``192.1.2.*`` network a
 ```yaml
 - name: Extract Tacacs+ server definitions
   set_fact: 
-    old_tacacs_servers: "{{ ansible_net_config | iosconf_lines(r'^tacacs-server host 192\.1\.2\.') }}"
+    old_tacacs_servers: "{{ ansible_net_config | iosconf_lines(r'^tacacs-server host 192\\.1\\.2\\.') }}"
 
 - name: Delete any Tacacs+ servers in the 192.1.2.0/24 network.
   ios_config:
@@ -98,7 +98,7 @@ The code below ensures that no Fast Ethernet interfaces has an explicit MTU conf
 ```yaml
 - name: Find Fast Ethernet interfaces with explicit MTU
   set_fact: 
-    if_with_mtu: "{{ ansible_net_config | iosconf_lines_with_child(r'interface FastEthernet', r'mtu \d+'}}"
+    if_with_mtu: "{{ ansible_net_config | iosconf_lines_with_child(r'interface FastEthernet', r'mtu \\d+'}}"
     
 - name: Delete the explicit MTU from Fast Ethernet interfaces
   ios_config:
@@ -155,7 +155,7 @@ section as shown in the following example.
 ```yaml
 - name: Find entries with 10.99.99.99 in access list LIST1
   set_fact: 
-    acl_entries: "{{ ansible_net_config | iosconf_lines_with_parent(r'^ip access-list extended LIST1$', r'10\.99\.99\.99'}}"
+    acl_entries: "{{ ansible_net_config | iosconf_lines_with_parent(r'^ip access-list extended LIST1$', r'10\\.99\\.99\\.99'}}"
 
 - name: Delete any access list entries referring to 10.99.99.99
   ios_config:
