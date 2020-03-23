@@ -86,11 +86,11 @@ that matches a second regular expression.
 The code below ensures that no Fast Ethernet interfaces has an explicit MTU configured.
 
 ```yaml
-- name: Find access list with entries for 10.99.99.99
+- name: Find Fast Ethernet interfaces with explicit MTU
   set_fact: 
     if_with_mtu: "{{ ansible_net_config | iosconf_lines_with_child(r'interface Ethernet', r'mtu \d+'}}"
     
-- name: Delete any explicit MTU from Fast Ethernet interfaces
+- name: Delete the explicit MTU from Fast Ethernet interfaces
   ios_config:
     lines: "no mtu"
     parents: "{{ item }}"
