@@ -19,7 +19,7 @@ Depending on the version of Ansible, ``ansible_net_config`` may not be populated
 best to run the ``ios_facts`` (or equivalent module for other platforms) and explicitly list ``config`` under the ``gather_subset`` option.
 
 ```yaml
-- name: Gather only the config and default facts
+- name: Gather the configuration and some other facts.
   ios_facts:
     gather_subset:
       - config, hardware, interfaces   # or simply 'all'
