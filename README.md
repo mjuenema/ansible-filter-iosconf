@@ -1,5 +1,7 @@
 # ansible-filter-iosconf
 
+**This project is currently in the planning stage**
+
 Ansible Jinja2 filters for extracting lines from Cisco IOS-style configurations. The filters require 
 [*ciscoconfparse*](https://pypi.org/project/ciscoconfparse/) but the implemented API is somewhat different.
 Only a small subset of the features of [*ciscoconfparse*](https://pypi.org/project/ciscoconfparse/) are 
