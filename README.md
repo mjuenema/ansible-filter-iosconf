@@ -31,7 +31,7 @@ best to run the ``ios_facts`` (or equivalent module for other platforms) and exp
 
 ## Installation
 
-Simply put the file ``iosconf.py`` into a folder named 'filter_plugins/' and you are ready to go.
+Install [*ciscoconfparse*](https://pypi.org/project/ciscoconfparse/) and then put the file ``iosconf.py`` into a folder named 'filter_plugins/'.
 
 ## Examples
 
