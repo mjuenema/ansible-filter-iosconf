@@ -36,7 +36,7 @@ tacacs-server host 192.0.2.34
 tacacs-server host 192.1.2.35
 tacacs-server host 192.1.2.36
 !
-interface Ethernet2/0
+interface FastEthernet2/0
  description Unprotected interface, facing towards Internet
  ip address 192.0.2.14 255.255.255.240
  no ip unreachables
@@ -44,7 +44,7 @@ interface Ethernet2/0
  no mop enable
  mtu 900
 !
-interface Ethernet2/1
+interface FastEthernet2/1
  description Protected interface, facing towards DMZ
  ip address 192.0.2.17 255.255.255.240
  no mop enable
@@ -90,7 +90,7 @@ The code below ensures that no Fast Ethernet interfaces has an explicit MTU conf
 ```yaml
 - name: Find Fast Ethernet interfaces with explicit MTU
   set_fact: 
-    if_with_mtu: "{{ ansible_net_config | iosconf_lines_with_child(r'interface Ethernet', r'mtu \d+'}}"
+    if_with_mtu: "{{ ansible_net_config | iosconf_lines_with_child(r'interface FastEthernet', r'mtu \d+'}}"
     
 - name: Delete the explicit MTU from Fast Ethernet interfaces
   ios_config:
@@ -99,23 +99,59 @@ The code below ensures that no Fast Ethernet interfaces has an explicit MTU conf
   with_items: if_with_mtu
 ```
 
-
-
-
 ## ``iosconf_lines_without_child``
-## ``iosconf_lines_with_childdren``
-## ``iosconf_lines_without_childdren``
-## ``iosconf_lines_with_parents``
 
-The code below removes all access list entries that refer for the IP address 10.99.99.99.
+The ``iosconf_lines_without_child`` filter is effectively the opposite to the ``iosconf_lines_with_child`` filter. It
+returns a list of sections that match a regular expressions but *do not* have a child line that match a second regular expression. This can be used to amend sections that are missing a setting.
 
 ```yaml
-- name: Find access list with entries for 10.99.99.99
+- name: Find Fast Ethernet interfaces that do not have NTP disabled.
   set_fact: 
-    access_list_names: "{{ ansible_net_config | iosconf_lines_with_child(r'10\.99\.99\.99'}}"
+    if_not_ntp_disable: "{{ ansible_net_config | iosconf_lines_with_child(r'interface FastEthernet', r'ntp disabled'}}"
+    
+- name: Disable NTP on all Fast Ethernet interfaces
+  ios_config:
+    lines: "ntp disable"
+    parents: "{{ item }}"
+  with_items: if_not_ntp_disable
+```
+
+## ``iosconf_lines_with_childdren``
+
+The ``iosconf_lines_with_children`` (multiple children) is a variation of ``iosconf_lines_with_child`` (single child) where
+the list of returned sections must contain all child regular expressions.
+
+```yaml
+- name: Find Fast Ethernet interfaces that have IP unreachables and mop disabled.
+  set_fact: 
+    found: "{{ ansible_net_config | iosconf_lines_with_children(r'^interface', [r'no ip unreachables', r'no mop enable'])
+ ```
+
+## ``iosconf_lines_without_children``
+
+The ``iosconf_lines_without_children`` returns section lines that contain none of the child regular expressions.
+
+```yaml
+- name: Find Fast Ethernet interfaces that have neither IP unreachables nor NTP disabled.
+  set_fact: 
+    found: "{{ ansible_net_config | iosconf_lines_without_children(r'^interface', [r'no ip unreachables', r'no ntp disable'])
+ ```
+
+## ``iosconf_lines_with_parent``
+
+The ``iosconf_lines_with_parents`` filter returns children of a section. The filter is actually a bit too powerful as the 
+first regular expression can match multiple sections, making it impossible to know what parent a returned line belongs to. 
+In most cases (I can think of, anyway) is recommended to ensure that the first regular expression only matches a single s
+section as shown in the following example.
+
+```yaml
+- name: Find entries with 10.99.99.99 in access list LIST1
+  set_fact: 
+    acl_entries: "{{ ansible_net_config | iosconf_lines_with_parent(r'^ip access-list extended LIST1$', r'10\.99\.99\.99'}}"
 
 - name: Delete any access list entries referring to 10.99.99.99
   ios_config:
     lines: "no {{ item }}"
-  with_items: old_tacacs_servers
+    parents: ip access-list extended LIST1
+  with_items: acl_entries
 ```
