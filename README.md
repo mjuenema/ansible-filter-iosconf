@@ -77,10 +77,43 @@ The example below filters for any Tacacs+ servers in the ``192.1.2.*`` network a
 Using the ``iosconf_lines`` filter makes this playbook idempotent as the ``no ...`` command is only executed
 if there are configuration lines that match the regular expression. Without the ``iosconf_lines`` it would be much
 more difficult to achieve the same.
+
 ## ``iosconf_lines_with_child``
+
+The ``iosconf_lines_with_child`` filter finds sections matching a regular expression that contain a child line 
+that matches a second regular expression. 
+
+The code below ensures that no Fast Ethernet interfaces has an explicit MTU configured.
+
+```yaml
+- name: Find access list with entries for 10.99.99.99
+  set_fact: 
+    if_with_mtu: "{{ ansible_net_config | iosconf_lines_with_child(r'interface Ethernet', r'mtu \d+'}}"
+    
+- name: Delete any explicit MTU from Fast Ethernet interfaces
+  ios_config:
+    lines: "no mtu"
+    parents: "{{ item }}"
+  with_items: if_with_mtu
+```
+
+
+
+
 ## ``iosconf_lines_without_child``
 ## ``iosconf_lines_with_childdren``
 ## ``iosconf_lines_without_childdren``
 ## ``iosconf_lines_with_parents``
 
- 
+The code below removes all access list entries that refer for the IP address 10.99.99.99.
+
+```yaml
+- name: Find access list with entries for 10.99.99.99
+  set_fact: 
+    access_list_names: "{{ ansible_net_config | iosconf_lines_with_child(r'10\.99\.99\.99'}}"
+
+- name: Delete any access list entries referring to 10.99.99.99
+  ios_config:
+    lines: "no {{ item }}"
+  with_items: old_tacacs_servers
+```
