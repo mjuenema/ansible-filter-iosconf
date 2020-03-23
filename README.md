@@ -31,7 +31,7 @@ best to run the ``ios_facts`` (or equivalent module for other platforms) and exp
 
 ## Installation
 
-Simply put this file into a folder named 'filter_plugins/'
+Simply put the file ``iosconf.py`` into a folder named 'filter_plugins/' and you are ready to go.
 
 ## Examples
 
