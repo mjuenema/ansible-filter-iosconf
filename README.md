@@ -1,5 +1,7 @@
 # ansible-filter-iosconf
 
+## Overview
+
 **This project is currently in the planning stage**
 
 Ansible Jinja2 filters for extracting lines from Cisco IOS-style configurations. The filters require 
@@ -26,6 +28,12 @@ best to run the ``ios_facts`` (or equivalent module for other platforms) and exp
     gather_subset:
       - config, hardware, interfaces   # or simply 'all'
 ```
+
+## Installation
+
+Simply put this file into a folder named 'filter_plugins/'
+
+## Examples
 
 The examples below work on the following IOS configuration fragment.
 ```
